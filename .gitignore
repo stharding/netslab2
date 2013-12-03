@@ -1,4 +1,9 @@
 TSWLatexianTemp*
 *.pdf
 *~
+*.log
+*.aux
+*.out
+*.gz
+*DS_Store
 

@@ -1,1 +1,1 @@
-alert udp any any -> any any (content: "BSD"; msg: "BSD traitors!"; sid:9999999; nocase;)
+alert udp any any -> any any (content: "Falun"; msg: "Falun Gong traitors!"; sid:9999999; nocase;)

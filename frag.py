@@ -6,7 +6,7 @@ from scapy.all import *
 targets = ["freebsd"]
 
 pay1 = "Linux!! Nothing to see here ...\n"
-pay2 = "FreeBSD! evil exploit payload!!\n"
+pay2 = "Falun Gong! Now the Revolution!\n"
 pay3 = "\x00" * 32
 
 def main():

@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
 import socket
-import io
-import threading
-import re
-import binascii
 
 def main():
     host = "10.59.2.2"
@@ -15,7 +11,7 @@ def main():
     while(True):
         msg, addr = sock.recvfrom(1024)
         print "Got this message:" + msg
-        if "bsd" in msg.lower():
+        if "falun" in msg.lower():
             print "recieved subversive message!!!!!!!!!"
 
     sock.close()

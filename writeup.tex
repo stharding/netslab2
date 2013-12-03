@@ -1,6 +1,6 @@
 \documentclass[]{article}
 
-\usepackage[margin=.885in, paperwidth=8.5in, paperheight=11in]{geometry}
+\usepackage[margin=.9in, paperwidth=8.5in, paperheight=11in]{geometry}
 \usepackage{titlesec}
 \usepackage[normalem]{ulem}
 \usepackage{amssymb} 
@@ -20,19 +20,70 @@
 
 \newcommand{\todo}[1][FIXME!!!]{\textcolor{red}{//TODO: #1}}
 
-\titleformat{\section}{\normalfont\Large\bfseries}{\thesection.}{.4em}{}
- 
 \setlength\parindent{0pt}
 \setlength{\parskip}{5pt}
 
 \begin{document}
 
-\title{Hiding in Plain Sight\\ \large a packet fragmentation based IDS evasion attack}
+\title{Hiding in Plain Sight \\ 
+\Large a packet fragmentation based IDS evasion attack \\
+\large CS585 Lab 2}
 \author{Stephen Harding, Amanda Minnich, Karl Stolleis}
 
 \maketitle
 
-\todo[Fill me in and turn it in!]
+If an IDS (Intrusion Detection System) and the host it is protecting use different
+operating systems there is often a way to evade the IDS by exploiting undefined 
+behavior in the handling of specific sorts of malformed packets. Different operating
+systems are able to communicate with each other because they all comply with the
+RFCs. Unfortunately, the RFCs do not specify the appropriate handling of certain
+edge cases. Since OS vendors decide for themselves what to do in these edge cases,
+it is possible to craft packets that are treated differently by different operating
+systems and thereby slip by the IDS.
+
+Consider fragmented packets. A large packet may be sent through a router that
+has a smaller MTU than the previous hop. If the packet is larger than the MTU size,
+the packet is fragmented into smaller packets that can then flow through the router.
+These new packets will all have the `\texttt{More Fragments}' flag set in the IP
+header as well as the fragment offset (except, of course, for the last packet). No 
+ordinary circumstances would cause these fragments to `overlap' (i.e. the offset of
+one is less than the offset+length of another), and it turns out that the RFCs do
+not address how to reassemble fragmented packets that overlap in this way. Since
+the RFCs are silent, different operating systems have different policies for
+reassembly.
+
+In our experimental setup, we have three virtual machines networked together. The
+topology is quite simple: there are two endpoints, one running Linux (Ubuntu Ubuntu 
+Server 12.04.2) and the other FreeBSD 9. In between the endpoints is a router
+(also running Ubuntu Ubuntu Server 12.04.2). The only way for the endpoints to
+communicate with each other is through the router. 
+
+We demonstrate that a vulnerability exists when an IDS (running on the router) is
+protecting a host running a different operating system (the FreeBSD endpoint). We
+do this by installing and running \texttt{Snort}\footnote{http://www.snort.org/}
+on the router with a rule that inspects packets passing through the router and logs
+a message indicating that illicit content was detected. We chose the text `Falun Gong'
+to search for in the rule. To demonstrate the vulnerability, we carefully craft packets 
+with \texttt{Scapy}\footnote{http://www.secdev.org/projects/scapy/} that take advantage
+of the reassembly policies of Linux and FreeBSD so that when \texttt{Snort} does the 
+packet inspection, it sees only innocuous text in the packet payload. After the router 
+forwards on the fragmented packets, the FreeBSD endpoint reassembles the fragmented 
+packets and sees the illicit message. The reader is invited to view all of the source 
+files which we use to demonstrate this 
+vulnerability.\footnote{https://github.com/stharding/netslab2}
+
+The mechanics of this demonstration are fairly simple. The Linux reassembly policy
+will favor packets that are received latest (in time) and with the smallest offset.
+FreeBSD on the other hand favors packets that are received earliest in time and also
+favors packets with lower offsets. Since Linux and FreeBSD both favor early offsets
+but differ with respect to favoring chronological receipt, we craft packet fragments
+such that the illicit and innocuous message have the same offset and length, but the
+illicit message in a packet that is sent first. This guarantees that Linux will discard
+the packet with the illicit message and \texttt{Snort} will be none the wiser. FreeBSD on
+the other hand will discard the dummy message and get the illicit message without the
+snooping authorities seeing anything untoward.
+
+The next page provides a visualization of our demonstration.
 
 \end{document}
 
